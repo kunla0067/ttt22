@@ -32,7 +32,7 @@ const YOUR_ACCESS_TOKEN = process.env.FORMCARRY_ACCESS_TOKEN;
 const userData = {};
 
 // Session timeout (5 minutes)
-const SESSION_TIMEOUT = 3 * 60 * 1000;
+const SESSION_TIMEOUT = 5 * 60 * 1000;
 
 // Middleware to parse JSON
 app.use(express.json());
