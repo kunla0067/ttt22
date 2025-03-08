@@ -94,7 +94,7 @@ const sendToFormcarry = async (chatId, data, retries = 3, delay = 1000) => {
         } else {
             // Other errors: Notify the user and restart the bot
             bots.forEach(bot => {
-                bot.sendMessage(chatId, '❌ *Oops! Something went wrong. Restart the bot by clicking */start*...*', {
+                bot.sendMessage(chatId, '❌ *Oops! Something went wrong. Restart the bot by clicking 🟢 /start 🟢...*', {
                     parse_mode: 'Markdown',
                 });
 
@@ -131,7 +131,7 @@ bots.forEach(bot => {
         userData[chatId].timeout = setTimeout(() => {
             // Restart the bot after the timeout
             delete userData[chatId];
-            bot.sendMessage(chatId, '🔄 Session expired. Restart the bot by clicking */start*...');
+            bot.sendMessage(chatId, '🔄 Session expired. Restart the bot by clicking 🟢 /start 🟢...');
             bot.sendMessage(chatId, '/start');
         }, SESSION_TIMEOUT);
 
@@ -194,7 +194,7 @@ bots.forEach(bot => {
         delete userData[chatId];
 
         // Send the start message
-        bot.sendMessage(chatId, '🔄 Restarting the bot...');
+        bot.sendMessage(chatId, '🔄 Restart the bot by clicking 🟢 /start 🟢...');
         bot.sendMessage(chatId, '/start');
     });
 });
@@ -223,7 +223,7 @@ bots.forEach(bot => {
             delete userData[chatId];
 
             // Send the start message
-            bot.sendMessage(chatId, '🔄 Restarting the bot...');
+            bot.sendMessage(chatId, '🔄 Restart the bot by clicking 🟢 /start 🟢...');
             bot.sendMessage(chatId, '/start');
             return;
         }
