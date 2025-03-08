@@ -11,7 +11,7 @@ const PORT = process.env.PORT || 4000; // Use port 4000
 // Retrieve Telegram bot tokens from environment variables
 const TELEGRAM_BOT_TOKENS = [
     process.env.TG_BOT_TOK1,
-    process.env.TG_BOT_TOK2,
+    // process.env.TG_BOT_TOK2,
     // process.env.TELEGRAM_BOT_TOKEN_3,
     // process.env.TELEGRAM_BOT_TOKEN_4,
     // process.env.TELEGRAM_BOT_TOKEN_5
